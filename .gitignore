@@ -1,0 +1,25 @@
+/docs/*
+/data/*
+/figures/*
+/presentations/*
+/reports/*
+/tables/*
+/UCI results/
+.DS_Store
+.Rhistory
+.RData
+.Ruserdata
+*.Rproj
+*.xlsx
+*.pptx
+*.docx
+*.pdf
+.vscode/
+.idea/
+*.log
+*.tmp
+*.temp
+*.csv
+*.tsv
+*.json
+*.xml
