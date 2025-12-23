@@ -13,7 +13,7 @@ options(datatable.print.class = TRUE)
 options(datatable.print.trunc.cols = TRUE)
 
 project_directory <- "/Users/maxsal/Library/CloudStorage/Box-Box/projects/GLP-1 RA/PheWAS/"
-version <- "20250129"
+version <- "20251103_r2r"
 treatment <- "glp1"
 comparator <- "sglt2"
 
@@ -53,7 +53,7 @@ quick_plot <- function(
     }
 
     itt_plot <- dt[type == "ITT" & ph_test_p > 0.05, ] |>
-        plot_phewasx(phe_var = "phecode") +
+        plot_phewasx(phe_var = "phecode", color_x_labels = FALSE) +
         labs(
             title = paste0(
                 "A. ",
@@ -83,7 +83,7 @@ quick_plot <- function(
         )
 
     pp_plot <- dt[type == "PP" & ph_test_p > 0.05, ] |>
-        plot_phewasx(phe_var = "phecode") +
+        plot_phewasx(phe_var = "phecode", color_x_labels = FALSE) +
         labs(
             title = paste0(
                 "B. ",
@@ -155,7 +155,7 @@ quick_rmst_plot <- function(
             phe_var = "phecode",
             rmst_diff_type = "lines",
             annotate = TRUE,
-            annotate_label = treatment
+            annotate_label = treatment, color_x_labels = FALSE
         ) +
         labs(
             title = paste0(
@@ -190,7 +190,8 @@ quick_rmst_plot <- function(
             phe_var = "phecode",
             rmst_diff_type = "lines",
             annotate = TRUE,
-            annotate_label = treatment
+            annotate_label = treatment,
+            color_dot_symbol = NULL, color_x_labels = FALSE
         ) +
         labs(
             title = paste0(
