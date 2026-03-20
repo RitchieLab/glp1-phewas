@@ -24,3 +24,5 @@
 *.json
 *.xml
 .Rproj.user
+.Rproj.user/*
+*.pper

@@ -310,14 +310,14 @@ tab_sum <- function(x, by_var = NULL, mod_span_head = NULL) {
         y |>
           gtsummary::add_overall() |>
           gtsummary::add_p(
-            pvalue_fun = gtsummary::label_style_pvalue(digits = 2),
+            pvalue_fun = function(x) formatC(x, format = "e", digits = 2),
             test = list(
               gtsummary::all_continuous() ~ "kruskal.test",
               gtsummary::all_categorical() ~ "chisq.test"
             ),
             test.args = list(
               gtsummary::all_categorical() ~
-                list(simulate.p.value = TRUE, B = 50000)
+                list(simulate.p.value = TRUE, B = 1000000)
             )
           )
       } else {
