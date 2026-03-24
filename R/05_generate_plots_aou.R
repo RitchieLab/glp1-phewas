@@ -52,6 +52,11 @@ quick_plot <- function(
         ]
     }
 
+    itt_plot_data <- phewasx_plot_data(
+        data    = dt[type == "ITT" & ph_test_p > 0.05, ],
+        phe_var = "phecode"
+    )
+
     itt_plot <- dt[type == "ITT" & ph_test_p > 0.05, ] |>
         plot_phewasx(phe_var = "phecode", color_x_labels = FALSE) +
         labs(
@@ -82,6 +87,7 @@ quick_plot <- function(
             caption = cap
         )
 
+    pp_plot_data <- phewasx_plot_data(dt[type == "PP" & ph_test_p > 0.05, ])
     pp_plot <- dt[type == "PP" & ph_test_p > 0.05, ] |>
         plot_phewasx(phe_var = "phecode", color_x_labels = FALSE) +
         labs(
@@ -121,17 +127,19 @@ quick_plot <- function(
 
     return(
         list(
-            itt = itt_plot,
-            pp = pp_plot,
-            patched = patched
+            itt      = itt_plot,
+            itt_data = itt_plot_data,
+            pp       = pp_plot,
+            pp_data  = pp_plot_data,
+            patched  = patched
         )
     )
 }
 
 quick_rmst_plot <- function(
     dt,
-    no_ob_osa = TRUE,
-    treatment = "GLP-1 RA",
+    no_ob_osa  = TRUE,
+    treatment  = "GLP-1 RA",
     comparator = "SGLT2i"
 ) {
     too_small <- dt[is.na(beta), .N]
@@ -149,6 +157,8 @@ quick_rmst_plot <- function(
             !grepl("EM_236|NS_333|EM_204.5", phecode, ignore.case = TRUE)
         ]
     }
+
+    itt_plot_data <- phewasx_rmst_plot_data(dt[type == "ITT" & ph_test_p > 0.05, ])
 
     itt_plot <- dt[type == "ITT" & ph_test_p > 0.05, ] |>
         plot_rmst_phewasx(
@@ -184,6 +194,8 @@ quick_rmst_plot <- function(
             ),
             caption = cap
         )
+
+    pp_plot_data <- phewasx_rmst_plot_data(dt[type == "PP" & ph_test_p > 0.05, ])
 
     pp_plot <- dt[type == "PP" & ph_test_p > 0.05, ] |>
         plot_rmst_phewasx(
@@ -230,9 +242,11 @@ quick_rmst_plot <- function(
 
     return(
         list(
-            itt = itt_plot,
-            pp = pp_plot,
-            patched = patched
+            itt      = itt_plot,
+            itt_data = itt_plot_data,
+            pp       = pp_plot,
+            pp_data  = pp_plot_data,
+            patched  = patched
         )
     )
 }
@@ -446,6 +460,17 @@ ggsave(
     device = cairo_pdf
 )
 
+write_source_data <- function(data, filename) {
+    fwrite(
+        x = data,
+        file = file.path(project_directory, "data", "source_data", filename),
+        sep = "\t"
+    )
+}
+
+write_source_data(sglt2i_plots[["itt_data"]], "fig1a_glp1_sglt2_itt.txt")
+write_source_data(sglt2i_plots[["pp_data"]], "fig1b_glp1_sglt2_pp.txt")
+
 dpp4i_plots <- quick_plot(dpp4, treatment = "GLP-1 RA", comparator = "DPP4i")
 dpp4i_rmst_plots <- quick_rmst_plot(
     dpp4,
@@ -476,11 +501,17 @@ ggsave(
     device = cairo_pdf
 )
 
+write_source_data(dpp4i_plots[["itt_data"]], "fig1c_glp1_dpp4_itt.txt")
+write_source_data(dpp4i_plots[["pp_data"]], "fig1d_glp1_dpp4_pp.txt")
+
 sema_sglt2_plots <- quick_plot(
     sema_sglt2,
     treatment = "Semaglutide",
     comparator = "SGLT2i"
 )
+write_source_data(sema_sglt2_plots[["itt_data"]], "fig2a_glp1_sglt2_itt.txt")
+write_source_data(sema_sglt2_plots[["pp_data"]], "fig2b_glp1_sglt2_pp.txt")
+
 sema_sglt2_rmst_plots <- quick_rmst_plot(
     sema_sglt2,
     treatment = "Semaglutide",
@@ -491,6 +522,9 @@ sema_dpp4_plots <- quick_plot(
     treatment = "Semaglutide",
     comparator = "DPP4i"
 )
+write_source_data(sema_dpp4_plots[["itt_data"]], "fig2c_glp1_dpp4_itt.txt")
+write_source_data(sema_dpp4_plots[["pp_data"]], "fig2d_glp1_dpp4_pp.txt")
+
 sema_dpp4_rmst_plots <- quick_rmst_plot(
     sema_dpp4,
     treatment = "Semaglutide",
@@ -544,7 +578,7 @@ ggsave(
 )
 
 glp1_patched <- wrap_plots(
-    sglt2i_plots[[1]] +
+    sglt2i_plots[["itt"]] +
         labs(
             subtitle = "",
             caption = ""
@@ -552,7 +586,7 @@ glp1_patched <- wrap_plots(
         theme(
             axis.text.x = element_blank()
         ),
-    sglt2i_plots[[2]] +
+    sglt2i_plots[["pp"]] +
         labs(
             subtitle = "",
             caption = ""
@@ -561,13 +595,13 @@ glp1_patched <- wrap_plots(
             axis.text.x = element_blank(),
             axis.title.y = element_blank()
         ),
-    dpp4i_plots[[1]] +
+    dpp4i_plots[["itt"]] +
         labs(
             title = "C. GLP-1 RA vs. DPP4i, intention-to-treat",
             subtitle = "",
             caption = ""
         ),
-    dpp4i_plots[[2]] +
+    dpp4i_plots[["pp"]] +
         labs(
             title = "D. GLP-1 RA vs. DPP4i, per-protocol",
             subtitle = "",
@@ -591,7 +625,7 @@ ggsave(
     device = cairo_pdf
 )
 glp1_rmst_patched <- wrap_plots(
-    sglt2i_rmst_plots[[1]] +
+    sglt2i_rmst_plots[["itt"]] +
         labs(
             subtitle = "",
             caption = ""
@@ -599,7 +633,7 @@ glp1_rmst_patched <- wrap_plots(
         theme(
             axis.text.x = element_blank()
         ),
-    sglt2i_rmst_plots[[2]] +
+    sglt2i_rmst_plots[["pp"]] +
         labs(
             subtitle = "",
             caption = ""
@@ -608,13 +642,13 @@ glp1_rmst_patched <- wrap_plots(
             axis.text.x = element_blank(),
             axis.title.y = element_blank()
         ),
-    dpp4i_rmst_plots[[1]] +
+    dpp4i_rmst_plots[["itt"]] +
         labs(
             title = "C. GLP-1 RA vs. DPP4i, intention-to-treat",
             subtitle = "",
             caption = ""
         ),
-    dpp4i_rmst_plots[[2]] +
+    dpp4i_rmst_plots[["pp"]] +
         labs(
             title = "D. GLP-1 RA vs. DPP4i, per-protocol",
             subtitle = "",
@@ -639,7 +673,7 @@ ggsave(
 )
 
 sema_patched <- wrap_plots(
-    sema_sglt2_plots[[1]] +
+    sema_sglt2_plots[["itt"]] +
         labs(
             subtitle = "",
             caption = ""
@@ -647,7 +681,7 @@ sema_patched <- wrap_plots(
         theme(
             axis.text.x = element_blank()
         ),
-    sema_sglt2_plots[[2]] +
+    sema_sglt2_plots[["pp"]] +
         labs(
             subtitle = "",
             caption = ""
@@ -656,13 +690,13 @@ sema_patched <- wrap_plots(
             axis.text.x = element_blank(),
             axis.title.y = element_blank()
         ),
-    sema_dpp4_plots[[1]] +
+    sema_dpp4_plots[["itt"]] +
         labs(
             title = "C. Semaglutide vs. DPP4i, intention-to-treat",
             subtitle = "",
             caption = ""
         ),
-    sema_dpp4_plots[[2]] +
+    sema_dpp4_plots[["pp"]] +
         labs(
             title = "D. Semaglutide vs. DPP4i, per-protocol",
             subtitle = "",
@@ -687,7 +721,7 @@ ggsave(
 )
 
 sema_rmst_patched <- wrap_plots(
-    sema_sglt2_rmst_plots[[1]] +
+    sema_sglt2_rmst_plots[["itt"]] +
         labs(
             subtitle = "",
             caption = ""
@@ -695,7 +729,7 @@ sema_rmst_patched <- wrap_plots(
         theme(
             axis.text.x = element_blank()
         ),
-    sema_sglt2_rmst_plots[[2]] +
+    sema_sglt2_rmst_plots[["pp"]] +
         labs(
             subtitle = "",
             caption = ""
@@ -704,13 +738,13 @@ sema_rmst_patched <- wrap_plots(
             axis.text.x = element_blank(),
             axis.title.y = element_blank()
         ),
-    sema_dpp4_rmst_plots[[1]] +
+    sema_dpp4_rmst_plots[["itt"]] +
         labs(
             title = "C. Semaglutide vs. DPP4i, intention-to-treat",
             subtitle = "",
             caption = ""
         ),
-    sema_dpp4_rmst_plots[[2]] +
+    sema_dpp4_rmst_plots[["pp"]] +
         labs(
             title = "D. Semaglutide vs. DPP4i, per-protocol",
             subtitle = "",
